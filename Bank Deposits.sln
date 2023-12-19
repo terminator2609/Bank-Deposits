@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bank Deposits", "Bank Deposits.vcxproj", "{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Debug|x64.ActiveCfg = Debug|x64
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Debug|x64.Build.0 = Debug|x64
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Debug|x86.ActiveCfg = Debug|Win32
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Debug|x86.Build.0 = Debug|Win32
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Release|x64.ActiveCfg = Release|x64
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Release|x64.Build.0 = Release|x64
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Release|x86.ActiveCfg = Release|Win32
+		{7C3E6815-F10E-4DB1-86B1-BA65BACEBFC5}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23B46A7F-8BC2-41D6-A3EB-EB2E5F052BE0}
+	EndGlobalSection
+EndGlobal
