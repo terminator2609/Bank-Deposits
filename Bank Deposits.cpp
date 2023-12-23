@@ -7,7 +7,7 @@ using namespace std;
 
 const unsigned short MAX_SIZE_CUSTОMERS = 50;
 const unsigned short MAX_SIZE_DEPOSITS = 3;
-const unsigned short GENERAL_MENU_OPTION = 4;
+const unsigned short GENERAL_MENU_OPTION = 6;
 
 struct Deposit
 {
@@ -151,6 +151,43 @@ void printDepositDataTemp(const BankCustomer customers[], const unsigned short i
 
 }
 
+void sortByDepositValue(BankCustomer customers[], const unsigned short& counterOfCustomers)
+{
+	int count = -1;
+	BankCustomer current;
+
+	for (int i = 0; i < counterOfCustomers; i++)
+	{
+
+		for (int j = 0; j < counterOfCustomers; j++)
+		{
+			if (j > i && i != 0 || i != j && i == 0)
+			{
+				if (customers[i].deposits[0].minValue > customers[j].deposits[0].minValue)
+				{
+					count = j;
+				}
+
+			}
+		}
+
+		if (count > -1) {
+
+			current = customers[count];
+
+			customers[count] = customers[i];
+
+			customers[i] = current;
+
+			count = -1;
+
+			i--;
+		}
+	}
+
+	cout << "Successfull sorting by deposit value" << endl;
+	cout << "" << endl;
+}
 
 
 void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers)
@@ -326,7 +363,6 @@ void searchAndPrintByParams(const BankCustomer customers[], const unsigned short
 						if (strcmp(customers[i].deposits[j].currency, "BGN") == 0) {
 
 
-
 							printCustomerDataTemp(customers, i);
 							printDepositDataTemp(customers, i);
 							break;
@@ -449,6 +485,113 @@ void sortByIBAN(BankCustomer customers[], const unsigned short& counterOfCustome
 	cout << "" << endl;
 }
 
+void references(const BankCustomer customers[], const unsigned short& counterOfCustomers) {
+
+	BankCustomer customersFiltered[MAX_SIZE_CUSTОMERS] = { 0 };
+	unsigned short counterCustomerFiltered = 0;
+
+	char selectedYearCreation[5];
+
+
+	unsigned short chooseOption = -1;
+
+
+	do
+	{
+
+		cout << "Choose option\n[1] Search customers by year of creation on bank account and print sorted by IBAN\n[2] Search customers by with 1 deposit on bank account and print sorted by value on a deposit\n[0] Exit\n";
+		cin >> chooseOption;
+
+		switch (chooseOption)
+		{
+		case 1:
+
+			system("CLS");
+
+			cin.ignore();
+
+			cout << "Enter value of year creation on bank account for searching: ";
+			cin.getline(selectedYearCreation, 5);
+
+
+			if (counterCustomerFiltered > 0) {
+
+				memset(customersFiltered, 0, sizeof(customersFiltered));
+				counterCustomerFiltered = 0;
+			}
+
+
+			for (int i = 0; i < counterOfCustomers; i++)
+			{
+				if (strcmp(customers[i].yearCreation, selectedYearCreation) == 0) {
+
+					customersFiltered[counterCustomerFiltered] = customers[i];
+
+					counterCustomerFiltered++;
+				}
+			}
+
+			if (counterCustomerFiltered > 1) {
+
+				sortByIBAN(customersFiltered, counterCustomerFiltered);
+				printAllCustomers(customersFiltered, counterCustomerFiltered);
+			}
+			else if (counterCustomerFiltered == 1) {
+				printAllCustomers(customersFiltered, counterCustomerFiltered);
+			}
+			else {
+				cout << "No found customer/s with this year of creation " << selectedYearCreation << endl;
+				cout << "" << endl;
+			}
+
+			chooseOption = -1;
+
+			break;
+
+		case 2:
+
+			if (counterCustomerFiltered > 0) {
+
+				memset(customersFiltered, 0, sizeof(customersFiltered));
+				counterCustomerFiltered = 0;
+			}
+
+			for (int i = 0; i < counterOfCustomers; i++)
+			{
+				if (customers[i].counterOfDeposits == 1) {
+
+					customersFiltered[counterCustomerFiltered] = customers[i];
+
+					counterCustomerFiltered++;
+				}
+			}
+
+			if (counterCustomerFiltered > 1) {
+
+				sortByDepositValue(customersFiltered, counterCustomerFiltered);
+				printAllCustomers(customersFiltered, counterCustomerFiltered);
+			}
+			else if (counterCustomerFiltered == 1) {
+				printAllCustomers(customersFiltered, counterCustomerFiltered);
+			}
+			else {
+				cout << "No found customer/s with one deposit" << selectedYearCreation << endl;
+				cout << "" << endl;
+			}
+
+			chooseOption = -1;
+
+			break;
+		default:
+			break;
+		}
+
+	} while (chooseOption < 0 || chooseOption > 2);
+
+	system("CLS");
+
+}
+
 int main()
 {
 
@@ -462,7 +605,7 @@ int main()
 	do
 	{
 
-		cout << "Choose option:\n[1] Add customers\n[2] Print all customers\n[3] Search and print by params\n[4] Sort by IBAN\n[0] Exit\n";
+		cout << "Choose option:\n[1] Add customers\n[2] Print all customers\n[3] Search and print by params\n[4] Sort by IBAN\n[5] Save data in file\n[6] Load data on file\n[7] Reference\n[0] Exit\n";
 		cin >> chooseFunc;
 
 		switch (chooseFunc)
@@ -517,13 +660,28 @@ int main()
 			chooseFunc = -1;
 			break;
 
-		case 4: 
+		case 4:
 
 			system("CLS");
 
 			if (counterOfCustomers > 1) {
 
 				sortByIBAN(customers, counterOfCustomers);
+			}
+			else {
+
+				cout << "No found customers or found 1 customer" << endl;
+				cout << "" << endl;
+			}
+
+			chooseFunc = -1;
+
+			break;
+		case 7:
+
+			if (counterOfCustomers > 1) {
+
+				references(customers, counterOfCustomers);
 			}
 			else {
 
