@@ -2,12 +2,13 @@
 #include <iostream>
 #include <cstring>
 #include <iomanip>
+#include <fstream>
 
 using namespace std;
 
 const unsigned short MAX_SIZE_CUSTОMERS = 50;
 const unsigned short MAX_SIZE_DEPOSITS = 3;
-const unsigned short GENERAL_MENU_OPTION = 6;
+const unsigned short GENERAL_MENU_OPTION = 9;
 
 struct Deposit
 {
@@ -22,28 +23,132 @@ struct BankCustomer
 	char IBAN[13] = "BG24";
 	char name[31];
 	char yearCreation[5];
-	Deposit deposits[MAX_SIZE_DEPOSITS];
+	Deposit deposits[MAX_SIZE_DEPOSITS] = { 0 };
 	unsigned short counterOfDeposits = 0;
 
 };
 
+// ------------------Помощни функции на основните-------------------------------- //
+
+
+void manageCurrency(BankCustomer customers[], const unsigned short index, unsigned short& currencyCounter, string currentCurrency[], unsigned short priority)
+{
+
+	bool isExist = false;
+	string currencies[] = { "BGN", "USD", "EURO" };
+
+	for (int i = 0; i < currencyCounter; i++)
+	{
+		currentCurrency[i] = "";
+	}
+
+	currencyCounter = 0;
+
+
+
+	switch (priority)
+	{
+	case 1:
+
+		cout << "Choose currency\n";
+
+		for (int i = 0; i < 3; i++) {
+
+			for (int j = 0; j < customers[index].counterOfDeposits; j++)
+			{
+				if (strcmp(customers[index].deposits[j].currency, currencies[i].c_str()) == 0) {
+					isExist = true;
+				}
+			}
+
+			if (isExist == false) {
+
+				cout << "[" << currencyCounter + 1 << "] " << currencies[i] << "\n";
+
+				currentCurrency[currencyCounter] = currencies[i];
+				currencyCounter++;
+			}
+			else {
+				isExist = false;
+			}
+		}
+
+		break;
+
+	case 2:
+
+		cout << "Choose currency\n";
+
+		for (int i = 0; i < 3; i++) {
+
+			for (int j = 0; j < customers[index].counterOfDeposits; j++)
+			{
+				if (strcmp(customers[index].deposits[j].currency, currencies[i].c_str()) == 0) {
+					isExist = true;
+					break;
+				}
+
+			}
+
+			if (isExist == true) {
+
+				cout << "[" << currencyCounter + 1 << "] " << currencies[i] << "\n";
+
+				currentCurrency[currencyCounter] = currencies[i];
+				currencyCounter++;
+
+				isExist = false;
+			}
+		}
+
+		break;
+
+	default:
+		break;
+	}
+
+
+
+
+}
+
 void inputDataByCustomer(BankCustomer customers[], const unsigned short index)
 {
-	char firstName[14], lastName[14], eightDig[9];
+
+	cout << "User data:" << endl;
+	cout << "" << endl;
+
+	char firstName[14] = "", lastName[14] = "", eightDig[9] = "";
 
 	cin.ignore();
 
-	cout << "Enter value of IBAN last 8 numbers[BG24 + 8 numbers]: ";
-	cin.getline(eightDig, 9);
+	do
+	{
+		cout << "Enter value of IBAN last 8 numbers[BG24 + 8 numbers]: ";
+		cin.getline(eightDig, 9);
+	} while (eightDig != NULL && eightDig[0] == '\0');
 
-	cout << "Enter value of first name: ";
-	cin.getline(firstName, 14);
 
-	cout << "Enter value of last name: ";
-	cin.getline(lastName, 14);
+	do
+	{
+		cout << "Enter value of first name: ";
+		cin.getline(firstName, 14);
+	} while (firstName != NULL && firstName[0] == '\0');
 
-	cout << "Enter value of year creation on account[YYYY]: ";
-	cin.getline(customers[index].yearCreation, 5);
+	do
+	{
+		cout << "Enter value of last name: ";
+		cin.getline(lastName, 14);
+
+	} while (lastName != NULL && lastName[0] == '\0');
+
+	do
+	{
+		cout << "Enter value of year creation on account[YYYY]: ";
+		cin.getline(customers[index].yearCreation, 5);
+
+	} while (customers[index].yearCreation != NULL && customers[index].yearCreation[0] == '\0');
+
 
 	strcpy_s(customers[index].name, firstName);
 	strcat_s(customers[index].name, " ");
@@ -54,24 +159,27 @@ void inputDataByCustomer(BankCustomer customers[], const unsigned short index)
 
 	cout << "" << endl;
 
+	fflush(stdin);
 
 }
 
 void inputDataByDeposit(BankCustomer customers[], const unsigned short index) {
 
 
-	unsigned short currencyChoose;
+	cout << "Deposit data:" << endl;
+	cout << "" << endl;
+
+	unsigned short currencyCounter = 0;
+	string currentCurrency[3] = { "" };
 
 	unsigned short counterOfDeposits = customers[index].counterOfDeposits;
 
 	string selectedCurrency;
-
+	unsigned short currencyChoose;
 
 	do
 	{
-
-
-		cout << "Choose currency by deposit\n[1] BGN(lev)\n[2] USD(dollars)\n[3] EURO\n";
+		manageCurrency(customers, index, currencyCounter, currentCurrency, 1);
 		cin >> currencyChoose;
 
 		switch (currencyChoose)
@@ -80,25 +188,34 @@ void inputDataByDeposit(BankCustomer customers[], const unsigned short index) {
 
 		case 1:
 
-			strcpy_s(customers[index].deposits[counterOfDeposits].currency, "BGN");
+			if (currencyCounter >= 1) {
 
-			selectedCurrency = "BGN";
+				selectedCurrency = currentCurrency[0];
+
+			}
 
 			break;
-
 		case 2:
-			strcpy_s(customers[index].deposits[counterOfDeposits].currency, "USD");
 
-			selectedCurrency = "USD";
+			if (currencyCounter >= 2) {
+
+				selectedCurrency = currentCurrency[1];
+
+			}
 
 			break;
+
 		case 3:
 
-			strcpy_s(customers[index].deposits[counterOfDeposits].currency, "EURO");
+			if (currencyCounter >= 3) {
 
-			selectedCurrency = "EURO";
+				selectedCurrency = currentCurrency[2];
+
+			}
 
 			break;
+
+
 		default:
 			break;
 		}
@@ -108,30 +225,35 @@ void inputDataByDeposit(BankCustomer customers[], const unsigned short index) {
 	} while (currencyChoose < 1 || currencyChoose > MAX_SIZE_DEPOSITS - counterOfDeposits);
 
 
+	strcpy_s(customers[index].deposits[counterOfDeposits].currency, selectedCurrency.c_str());
+
 	do
 	{
-		cout << "Enter value of minimum sum on deposit in currency[" << selectedCurrency << "]: ";
+		cout << "Enter value of amount[minimum 500] on deposit in currency[" << selectedCurrency << "]: ";
 		cin >> customers[index].deposits[counterOfDeposits].minValue;
 
 
-	} while (customers[index].deposits[counterOfDeposits].minValue < 1);
-
+	} while (customers[index].deposits[counterOfDeposits].minValue < 500);
 
 	do
 	{
-
 		cout << "Enter value of year of creation on deposit: ";
 		cin >> customers[index].deposits[counterOfDeposits].yearCreation;
 
-	} while (strlen(customers[index].deposits[counterOfDeposits].yearCreation) < 4 || strlen(customers[index].deposits[counterOfDeposits].yearCreation) > 4);
+	} while (strcmp(customers[index].yearCreation, customers[index].deposits[counterOfDeposits].yearCreation) > 0);
 
 	customers[index].counterOfDeposits++;
 
 	cout << "" << endl;
+
+	fflush(stdin);
 }
 
 void printCustomerDataTemp(const BankCustomer customers[], const unsigned short index)
 {
+	cout << setw(15) << setiosflags(ios::left) << "IBAN" << setw(33) << "Name" << setw(33) << "Year of creation(account)"
+		<< setw(17) << "Deposits(count)" << resetiosflags(ios::left) << endl;
+
 	cout << setw(15) << setiosflags(ios::left) << customers[index].IBAN << setw(33) << customers[index].name << setw(33) << customers[index].yearCreation
 		<< setw(17) << customers[index].counterOfDeposits << resetiosflags(ios::left) << endl;
 
@@ -190,6 +312,173 @@ void sortByDepositValue(BankCustomer customers[], const unsigned short& counterO
 }
 
 
+void manageDeposit(BankCustomer customers[], const unsigned short counterOfCustomers, const unsigned short index, const unsigned short chooseOption)
+{
+	string selectedCurrency;
+	string currentCurrency[3] = { "" };
+
+	unsigned short currencyCounter = 0;
+	unsigned short chooseCurrency;
+
+	unsigned short currentIndex = 0;
+
+	double windrawSum = 0;
+
+
+	switch (chooseOption)
+	{
+	case 1:
+
+		do
+		{
+			manageCurrency(customers, index, currencyCounter, currentCurrency, 2);
+			cin >> chooseCurrency;
+
+			switch (chooseCurrency)
+			{
+			case 1:
+
+				if (currencyCounter >= 1) {
+
+					selectedCurrency = currentCurrency[0];
+
+				}
+
+				break;
+			case 2:
+
+				if (currencyCounter >= 2) {
+
+					selectedCurrency = currentCurrency[1];
+
+				}
+
+				break;
+
+			case 3:
+
+				if (currencyCounter >= 3) {
+
+					selectedCurrency = currentCurrency[2];
+
+				}
+
+				break;
+
+
+			default:
+				break;
+			}
+
+		} while (chooseCurrency < 1 || chooseCurrency > currencyCounter);
+
+		for (int i = 0; i < customers[index].counterOfDeposits; i++) {
+
+			if (strcmp(customers[index].deposits[i].currency, selectedCurrency.c_str()) == 0)
+			{
+				cout << "Amount on this deposit is: " << customers[index].deposits[i].minValue
+					<< " " << customers[index].deposits[i].currency << endl;
+				cout << "" << endl;
+
+				currentIndex = i;
+
+				break;
+			}
+		}
+
+
+		do
+		{
+			cout << "What amount you want to withdraw[1-" << customers[index].deposits[currentIndex].minValue << "]: ";
+			cin >> windrawSum;
+
+
+		} while (windrawSum > customers[index].deposits[currentIndex].minValue || windrawSum < 1);
+
+
+		if (windrawSum == customers[index].deposits[currentIndex].minValue)
+		{
+			if (currentIndex == customers[index].counterOfDeposits - 1)
+			{
+				customers[index].deposits[currentIndex] = { 0 };
+
+			}
+			else {
+				for (int i = currentIndex; i < customers[index].counterOfDeposits; i++) {
+
+					if (i != customers[index].counterOfDeposits - 1)
+					{
+						customers[index].deposits[i] = customers[index].deposits[i + 1];
+					}
+
+
+				}
+
+				int lastIndex = customers[index].counterOfDeposits - 1;
+
+				customers[index].deposits[lastIndex] = { 0 };
+
+
+			}
+
+			customers[index].counterOfDeposits -= 1;
+
+			cout << "Successfull windraw " << windrawSum << " " << selectedCurrency << endl;
+			cout << "The deposit is removed" << endl;
+		}
+		else {
+
+			customers[index].deposits[currentIndex].minValue -= windrawSum;
+
+			cout << "Successfull windraw " << windrawSum << " " << selectedCurrency << endl;
+			cout << "The left amount in current deposit is: " << customers[index].deposits[currentIndex].minValue << " " << selectedCurrency;
+		}
+
+		break;
+
+	case 2:
+
+		for (int i = 0; i < customers[index].counterOfDeposits; i++)
+		{
+			windrawSum += customers[index].deposits[i].minValue;
+		}
+
+		if (index == counterOfCustomers - 1) {
+
+			customers[index] = { 0 };
+		}
+		else {
+			for (int i = index; i < counterOfCustomers; i++) {
+
+				if (i != counterOfCustomers - 1)
+				{
+					customers[i] = customers[i + 1];
+				}
+
+
+			}
+
+
+			customers[counterOfCustomers - 1] = { 0 };
+		}
+
+		cout << "You windraw: " << windrawSum << " total" << endl;
+		cout << "The bank account removed" << endl;
+
+		break;
+	default:
+		break;
+	}
+
+
+}
+
+
+
+
+
+// --------------------------- Основни функции -------------------------------------- //
+
 void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers)
 {
 	unsigned short chooseOption = -1;
@@ -205,6 +494,8 @@ void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers
 		switch (chooseOption)
 		{
 		case 1:
+
+			system("CLS");
 
 			if (1 + counterOfCustomers <= MAX_SIZE_CUSTОMERS) {
 
@@ -223,21 +514,22 @@ void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers
 
 				cout << "" << endl;
 
-				chooseOption = -1;
-
-
 			}
 			else {
 				cout << "No free space !!!\n" << "All list is full" << endl;
 			}
 
+			chooseOption = -1;
+
 			break;
 
 		case 2:
 
+			system("CLS");
+
 			do
 			{
-				cout << "Enter value of customers for adding[1-50]: ";
+				cout << "Enter value of customers for adding[2-50]: ";
 				cin >> counterOfAdding;
 
 				if (MAX_SIZE_CUSTОMERS < counterOfCustomers + counterOfAdding) {
@@ -265,6 +557,10 @@ void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers
 
 					inputDataByDeposit(customers, i);
 
+
+					system("CLS");
+
+					cout << "Successfull adding customer" << endl;
 				}
 
 				counterOfCustomers += counterOfDeposits;
@@ -295,10 +591,16 @@ void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers
 						inputDataByDeposit(customers, i);
 					}
 
+					system("CLS");
+
+					cout << "Successfull adding customer\n" << endl;
 
 				}
 
 				counterOfCustomers += counterOfAdding;
+
+
+				cout << "" << endl;
 			}
 
 			chooseOption = -1;
@@ -313,13 +615,11 @@ void addingCustomer(BankCustomer customers[], unsigned short& counterOfCustomers
 	system("CLS");
 }
 
+
 void printAllCustomers(const BankCustomer customers[], const unsigned short& counterOfCustomers) {
 
 	cout << "Print all customers...." << endl;
 	cout << "" << endl;
-
-	cout << setw(15) << setiosflags(ios::left) << "IBAN" << setw(33) << "Name" << setw(33) << "Year of creation(account)"
-		<< setw(17) << "Deposits(count)" << resetiosflags(ios::left) << endl;
 
 	for (int i = 0; i < counterOfCustomers; i++) {
 
@@ -349,10 +649,6 @@ void searchAndPrintByParams(const BankCustomer customers[], const unsigned short
 
 			cout << "Print all customers...." << endl;
 			cout << "" << endl;
-
-			cout << setw(15) << setiosflags(ios::left) << "IBAN" << setw(33) << "Name" << setw(33) << "Year of creation(account)"
-				<< setw(17) << "Deposits(count)" << resetiosflags(ios::left) << endl;
-
 
 			for (int i = 0; i < counterOfCustomers; i++) {
 
@@ -592,6 +888,183 @@ void references(const BankCustomer customers[], const unsigned short& counterOfC
 
 }
 
+void addNewDeposit(BankCustomer customers[], unsigned short& counterOfCustomers) {
+
+	char selectedIban[13];
+
+	short indexCustomer = -1;
+
+	cin.ignore();
+
+	cout << "Enter value of IBAN on customer for adding on deposit: ";
+	cin.getline(selectedIban, 13);
+
+	for (int i = 0; i < counterOfCustomers; i++) {
+
+		if (strcmp(customers[i].IBAN, selectedIban) == 0) {
+			indexCustomer = i;
+		}
+	}
+
+	if (indexCustomer == -1) {
+		cout << "No found customer with this IBAN" << endl;
+	}
+	else if (customers[indexCustomer].counterOfDeposits == 3) {
+		cout << "This customer already exist 3 deposits" << endl;
+	}
+	else {
+		inputDataByDeposit(customers, indexCustomer);
+	}
+}
+
+void windrawDeposit(BankCustomer customers[], unsigned short& counterOfCustomers)
+{
+	char selectedIban[13];
+
+	short indexCustomer = -1;
+
+	unsigned short chooseOption = -1;
+
+
+	do
+	{
+
+
+		cout << "Choose option\n[1] Windraw sum by deposit\n[2] Windraw sum by all deposits and remove bank account\n[0] Exit\n";
+		cin >> chooseOption;
+
+		cin.ignore();
+
+		switch (chooseOption)
+		{
+		case 1:
+
+			system("CLS");
+
+			cout << "Enter value of IBAN on customer for adding on deposit: ";
+			cin.getline(selectedIban, 13);
+
+			for (int i = 0; i < counterOfCustomers; i++) {
+
+				if (strcmp(customers[i].IBAN, selectedIban) == 0) {
+					indexCustomer = i;
+				}
+			}
+
+			if (indexCustomer == -1) {
+				cout << "No found customer with this IBAN" << endl;
+			}
+			else if (indexCustomer > -1 && customers[indexCustomer].counterOfDeposits == 0) {
+				cout << "No found deposits for windraw" << endl;
+			}
+			else {
+				manageDeposit(customers, counterOfCustomers, indexCustomer, 1);
+				indexCustomer = -1;
+			}
+
+
+			chooseOption = -1;
+
+			break;
+
+		case 2:
+
+			system("CLS");
+
+			cout << "Enter value of IBAN on customer for adding on deposit: ";
+			cin.getline(selectedIban, 13);
+
+			for (int i = 0; i < counterOfCustomers; i++) {
+
+				if (strcmp(customers[i].IBAN, selectedIban) == 0) {
+					indexCustomer = i;
+				}
+			}
+
+			if (indexCustomer == -1) {
+				cout << "No found customer with this IBAN" << endl;
+			}
+			else if (indexCustomer > -1 && customers[indexCustomer].counterOfDeposits == 0) {
+				cout << "No found deposits for windraw" << endl;
+			}
+			else {
+				manageDeposit(customers, counterOfCustomers, indexCustomer, 2);
+				indexCustomer = -1;
+				counterOfCustomers -= 1;
+			}
+
+			break;
+		default:
+			break;
+		}
+
+	} while (chooseOption < 0 || chooseOption > 2);
+
+	system("CLS");
+}
+
+int saveDataToBinaryFile(const BankCustomer customers[], const unsigned short& counterOfCustomers)
+{
+	ofstream customerData("customers.dat", ios::out | ios::binary);
+
+	if (!customerData) {
+		cout << "Cannot open file!" << endl;
+		return 1;
+	}
+
+
+	for (int i = 0; i < counterOfCustomers; i++) {
+
+		customerData.write((char*)&customers[i], sizeof(BankCustomer));
+
+	}
+
+	customerData.close();
+
+	if (!customerData.good()) {
+		cout << "Error occurred at writing time!" << endl;
+		return 1;
+	}
+	else {
+		cout << "Successfull save data to file" << endl;
+
+		cout << "" << endl;
+	}
+
+
+}
+
+int loadDataFromBinaryFile(BankCustomer customers[], unsigned short& counterOfCustomers)
+{
+	ifstream customerDataInput("customers.dat", ios::in | ios::binary);
+
+	if (!customerDataInput) {
+		cout << "Cannot open file!" << endl;
+		return 1;
+	}
+
+	while (!customerDataInput.eof())
+	{
+		customerDataInput.read((char*)&customers[counterOfCustomers], sizeof(BankCustomer));
+
+		counterOfCustomers++;
+	}
+
+
+	customerDataInput.close();
+
+	if (!customerDataInput.good()) {
+		cout << "Error occurred at reading time!" << endl;
+		return 1;
+	}
+	else {
+		cout << "Successfull load data to file" << endl;
+
+		cout << "" << endl;
+	}
+}
+
+
 int main()
 {
 
@@ -605,7 +1078,7 @@ int main()
 	do
 	{
 
-		cout << "Choose option:\n[1] Add customers\n[2] Print all customers\n[3] Search and print by params\n[4] Sort by IBAN\n[5] Save data in file\n[6] Load data on file\n[7] Reference\n[0] Exit\n";
+		cout << "Choose option:\n[1] Add customers\n[2] Print all customers\n[3] Search and print by params\n[4] Sort by IBAN\n[5] Save data in file\n[6] Load data on file\n[7] Reference\n[8] Add new deposit\n[9] Windraw deposit\n[0] Exit\n";
 		cin >> chooseFunc;
 
 		switch (chooseFunc)
@@ -647,13 +1120,13 @@ int main()
 
 			system("CLS");
 
-			if (counterOfCustomers > 0) {
+			if (counterOfCustomers > 1) {
 
 				searchAndPrintByParams(customers, counterOfCustomers);
 			}
 			else {
 
-				cout << "No found customers" << endl;
+				cout << "No found customers or found 1 customer" << endl;
 				cout << "" << endl;
 			}
 
@@ -677,7 +1150,35 @@ int main()
 			chooseFunc = -1;
 
 			break;
+
+		case 5:
+			system("CLS");
+
+			if (counterOfCustomers > 0) {
+
+				saveDataToBinaryFile(customers, counterOfCustomers);
+			}
+			else {
+
+				cout << "No found customers" << endl;
+				cout << "" << endl;
+			}
+
+			chooseFunc = -1;
+
+			break;
+
+		case 6:
+			system("CLS");
+
+			loadDataFromBinaryFile(customers, counterOfCustomers);
+
+			chooseFunc = -1;
+
+			break;
 		case 7:
+
+			system("CLS");
 
 			if (counterOfCustomers > 1) {
 
@@ -686,6 +1187,42 @@ int main()
 			else {
 
 				cout << "No found customers or found 1 customer" << endl;
+				cout << "" << endl;
+			}
+
+			chooseFunc = -1;
+
+			break;
+
+		case 8:
+
+			system("CLS");
+
+			if (counterOfCustomers > 0) {
+
+				addNewDeposit(customers, counterOfCustomers);
+			}
+			else {
+
+				cout << "No found customers" << endl;
+				cout << "" << endl;
+			}
+
+			chooseFunc = -1;
+
+			break;
+
+		case 9:
+
+			system("CLS");
+
+			if (counterOfCustomers > 0) {
+
+				windrawDeposit(customers, counterOfCustomers);
+			}
+			else {
+
+				cout << "No found customers" << endl;
 				cout << "" << endl;
 			}
 
